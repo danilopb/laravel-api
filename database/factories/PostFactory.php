@@ -19,14 +19,14 @@ class PostFactory extends Factory
      */
     public function definition(): array
     {
-        $user = User::factory()->create();
         $title = fake()->realText(config('attribute.title.max'));
         return [
             'title' => $title,
             'content' => fake()->realText(config('attribute.content.max')),
             'slug' => Str::slug($title),
-            'created_by' => $user->id,
-            'updated_by' =>  $user->id
+            'created_by' => User::factory(),
+//            'status'
+//            'category'
         ];
     }
 }

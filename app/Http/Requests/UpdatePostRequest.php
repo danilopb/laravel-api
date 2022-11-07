@@ -13,7 +13,7 @@ class UpdatePostRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,10 +21,26 @@ class UpdatePostRequest extends FormRequest
      *
      * @return array<string, mixed>
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-            //
+            'title' => [
+                'required',
+                'string',
+                'min:'.config('attribute.title.min'),
+                'max:'.config('attribute.title.max')
+            ],
+            'content' => [
+                'required',
+                'string',
+                'min:'.config('attribute.content.min'),
+                'max:'.config('attribute.content.max')
+            ],
+            'slug' => [
+                'nullable',
+                'string',
+                'max:'.config('attribute.title.max')
+            ]
         ];
     }
 }

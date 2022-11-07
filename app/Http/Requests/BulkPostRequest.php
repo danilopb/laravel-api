@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StorePostRequest extends FormRequest
+class BulkPostRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,14 +23,19 @@ class StorePostRequest extends FormRequest
      */
     public function rules()
     {
+        $data = $this->validationData();
+        $sizeArray = $data['title'] ? count($data['title']) : 1;
+
         return [
-            'title' => [
+            'title' => ['required', 'array', 'min:1'],
+            'content' => ['required', 'array', 'min:'.$sizeArray, 'max:'.$sizeArray],
+            'title.*' => [
                 'required',
                 'string',
                 'min:'.config('attribute.title.min'),
                 'max:'.config('attribute.title.max')
             ],
-            'content' => [
+            'content.*' => [
                 'required',
                 'string',
                 'min:'.config('attribute.content.min'),

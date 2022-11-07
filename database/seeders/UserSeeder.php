@@ -2,11 +2,11 @@
 
 namespace Database\Seeders;
 
-use App\Models\Post;
+use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-class PostSeeder extends Seeder
+class UserSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -15,8 +15,9 @@ class PostSeeder extends Seeder
      */
     public function run()
     {
-//        Post::factory()
-//            ->count(5)
-//            ->create();
+        User::factory()
+            ->count(5)
+            ->hasPosts(20)
+            ->create();
     }
 }
