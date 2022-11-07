@@ -3,9 +3,11 @@
 namespace App\Services;
 
 use App\Filters\PostFilter;
+use App\Helpers\FileHelper;
 use App\Models\Post;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class PostServiceImpl extends GenericServiceImpl implements IPostService
@@ -20,12 +22,25 @@ class PostServiceImpl extends GenericServiceImpl implements IPostService
      *
      * @param array $data
      * @return Model
+     * @throws Exception
      */
     public function create(array $data): Model
     {
-        $data['slug'] = $this->generateUniqueSlug($data['title']);
-        $data['created_by'] = auth()->user()->id;
-        return $this->model->create($data);
+        try {
+            \DB::beginTransaction();
+            $file = $data['file'];
+            $data['slug'] = $this->generateUniqueSlug($data['title']);
+            $data['created_by'] = auth()->user()->id;
+            $data['file'] = FileHelper::generateName($file->getClientOriginalExtension());
+            $post = $this->model->create($data);
+            //Save file
+            Storage::putFileAs($this->model->storage_name, $file, $data['file']);
+            \DB::commit();
+            return $post;
+        } catch (Exception $e) {
+            \DB::rollBack();
+            throw $e;
+        }
     }
 
     /**
@@ -33,16 +48,33 @@ class PostServiceImpl extends GenericServiceImpl implements IPostService
      * @param Model $model
      * @param array $data
      * @return Model
+     * @throws Exception
      */
     public function update(Model $model, array $data): Model
     {
-        if (isset($data['slug'])) {
-            $slug = $data['slug'];
-            $data['slug'] = !$this->existSlug($slug) ? $slug : $this->generateUniqueSlug($slug);
+        try {
+            \DB::beginTransaction();
+            $file = $data['file'] ?? null;
+            $oldFileName = $model->file;
+            if (isset($data['slug'])) {
+                $slug = $data['slug'];
+                $data['slug'] = !$this->existSlug($slug) ? $slug : $this->generateUniqueSlug($slug);
+            }
+            if ($file) {
+                $data['file'] = FileHelper::generateName($file->getClientOriginalExtension());
+            }
+            $model->update($data);
+            //Save file
+            if ($file) {
+                Storage::putFileAs($this->model->storage_name, $file, $data['file']);
+                Storage::delete($this->model->storage_name."/".$oldFileName);
+            }
+            \DB::commit();
+            return $model;
+        } catch (Exception $e) {
+            \DB::rollBack();
+            throw $e;
         }
-
-        $model->update($data);
-        return $model;
     }
 
     /**
@@ -59,12 +91,16 @@ class PostServiceImpl extends GenericServiceImpl implements IPostService
             $rows = count($data['title']);
             $userId = auth()->user()->id;
             for ($i = 0; $i < $rows ;$i++) {
-                $this->create([
+                $file = $data['file'][$i];
+                $fileName = FileHelper::generateName($file->getClientOriginalExtension());
+                Post::create([
                     'title' => $data['title'][$i],
                     'content' => $data['content'][$i],
                     'slug' => $this->generateUniqueSlug($data['title'][$i]),
+                    'file' => $fileName,
                     'created_by' => $userId
                 ]);
+                Storage::putFileAs($this->model->storage_name, $file, $fileName);
             }
             \DB::commit();
             return true;

@@ -1,12 +1,9 @@
 <?php
 
-
 namespace App\Helpers;
-
 
 class ExceptionHelper
 {
-
     public static function getValuesErrorLog(\Exception $e): array
     {
         return [

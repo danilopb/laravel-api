@@ -39,7 +39,8 @@ class Post extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['title', 'content', 'slug', 'created_by'];
+    protected $fillable = ['title', 'content', 'slug', 'file', 'created_by'];
+    public string $storage_name = 'posts';
 
     public function user(): BelongsTo
     {

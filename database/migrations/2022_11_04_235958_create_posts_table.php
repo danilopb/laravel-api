@@ -19,6 +19,8 @@ return new class extends Migration
             $table->text('content');
             $table->string('slug')
                 ->unique();
+            $table->string('file')
+                ->nullable();
             $table->unsignedBigInteger('created_by');
             $table->softDeletes();
             $table->timestamps();

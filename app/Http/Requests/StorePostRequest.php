@@ -11,7 +11,7 @@ class StorePostRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
@@ -35,6 +35,12 @@ class StorePostRequest extends FormRequest
                 'string',
                 'min:'.config('attribute.content.min'),
                 'max:'.config('attribute.content.max')
+            ],
+            'file' => [
+                'required',
+                'file',
+                'mimes:'.join(",", config('file.allowed_extensions')),
+                'max:'.config('file.max_size')
             ]
         ];
     }

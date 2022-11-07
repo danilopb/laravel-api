@@ -6,7 +6,6 @@ use App\Helpers\ExceptionHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Services\UserServiceImpl;
-use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\ValidationException;
 
@@ -17,7 +16,6 @@ class LoginController extends Controller
      *
      * @param LoginRequest $request
      * @return JsonResponse
-     * @throws ValidationException
      */
     public function login(LoginRequest $request): JsonResponse
     {
@@ -28,8 +26,10 @@ class LoginController extends Controller
             $request->authenticate();
             $userService = new UserServiceImpl();
             $data['token'] = $userService->createToken(auth()->user());
+            $codeResponse = 201;
         } catch (ValidationException $e) {
             $message = $e->getMessage();
+            $codeResponse = 400;
         } catch (\Exception $e) {
             \Log::error(
                 'Problem to login in LoginController function login',

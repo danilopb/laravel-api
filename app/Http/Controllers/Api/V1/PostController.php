@@ -38,7 +38,10 @@ class PostController extends Controller
         try {
             $data['posts'] = PostResource::collection($this->service->findAll($request));
         } catch (\Exception $e) {
-            \Log::error('Problem to get Posts in PostController function index', ExceptionHelper::getValuesErrorLog($e));
+            \Log::error(
+                'Problem to get Posts in PostController function index',
+                ExceptionHelper::getValuesErrorLog($e)
+            );
             report($e);
             $message = trans('post.message.index_error');
             $hasError = true;

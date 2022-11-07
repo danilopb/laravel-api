@@ -29,6 +29,7 @@ class BulkPostRequest extends FormRequest
         return [
             'title' => ['required', 'array', 'min:1'],
             'content' => ['required', 'array', 'min:'.$sizeArray, 'max:'.$sizeArray],
+            'file' => ['required', 'array', 'min:'.$sizeArray, 'max:'.$sizeArray],
             'title.*' => [
                 'required',
                 'string',
@@ -40,6 +41,12 @@ class BulkPostRequest extends FormRequest
                 'string',
                 'min:'.config('attribute.content.min'),
                 'max:'.config('attribute.content.max')
+            ],
+            'file.*' => [
+                'required',
+                'file',
+                'mimes:'.join(",", config('file.allowed_extensions')),
+                'max:'.config('file.max_size')
             ]
         ];
     }

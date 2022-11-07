@@ -40,6 +40,12 @@ class UpdatePostRequest extends FormRequest
                 'nullable',
                 'string',
                 'max:'.config('attribute.title.max')
+            ],
+            'file' => [
+                'nullable',
+                'file',
+                'mimes:'.join(",", config('file.allowed_extensions')),
+                'max:'.config('file.max_size')
             ]
         ];
     }
